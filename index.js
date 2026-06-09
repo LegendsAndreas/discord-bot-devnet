@@ -12,14 +12,29 @@ const client = new Client({
     ]
 });
 
-client.once('ready', () => {
+client.once('clientReady', () => {
     console.log(`Logged in as ${client.user.tag}!`);
+
+    const channelId = '1427535623861833750';
+    const channel = client.channels.cache.get(channelId);
+
+    if (channel) {
+        channel.send('Bot is now active!');
+    } else {
+        console.log('Channel not found!');
+    }
 });
 
 client.login(process.env.DISCORD_TOKEN);
 
 client.on('messageCreate', async (message) => {
     if (!message.author.bot) {
-        message.author.send("Shut up");
+        const channel = client.channels.cache.get(message.channelId);
+        if (!channel) {
+            console.log('Channel not found!');
+            return;
+        }
+        const name = message.author.id;
+        await channel.send(`Shut up @${name}`);
     }
 });
