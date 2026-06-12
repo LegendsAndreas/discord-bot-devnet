@@ -1,7 +1,19 @@
 import dotenv from 'dotenv';
+import pg from 'pg';
+import { Client, Events, GatewayIntentBits } from 'discord.js';
+
 dotenv.config();
 
-import { Client, Events, GatewayIntentBits } from 'discord.js';
+const pool = new pg.Pool({
+    connectionString: process.env.PSQL
+});
+
+pool.connect().then(() => {
+    console.log('Connected to PostgreSQL database');
+})
+.catch(err => {
+    console.error('Error connecting to PostgreSQL database:', err);
+});
 
 const client = new Client({
     intents: [
@@ -16,11 +28,12 @@ const client = new Client({
 client.once(Events.ClientReady, () => {
     console.log(`Logged in as ${client.user.tag}!`);
 
-    const channelId = '1427535623861833750';
+    const channelId = '1427535623861833750'; // Generel
     const channel = client.channels.cache.get(channelId);
+    pool.query("INSERT INTO test (name) VALUES ($1)", ['John Doe']);
 
     if (channel) {
-        channel.send('Bot is now active!');
+        // channel.send('Bot is now active!');
     } else {
         console.log('Channel not found!');
     }

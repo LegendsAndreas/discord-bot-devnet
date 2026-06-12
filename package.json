@@ -20,6 +20,7 @@
   "homepage": "https://github.com/LegendsAndreas/discord-bot-devnet#readme",
   "dependencies": {
     "discord.js": "^14.26.4",
-    "dotenv": "^17.4.2"
+    "dotenv": "^17.4.2",
+    "pg": "^8.21.0"
   }
 }
