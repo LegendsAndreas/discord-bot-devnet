@@ -1,5 +1,5 @@
 import { userMention } from "@discordjs/builders";
-import Event from "../structures/Event.js";
+import Event from "../structures/event.js";
 
 export default new Event(async (client, message) => {
 	if (message.author.bot) return;
