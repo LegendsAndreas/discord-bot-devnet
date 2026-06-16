@@ -1,0 +1,7 @@
+{
+    "name": "express",
+    "main": "express.js",
+    "dependencies": {
+        "express": "^5.2.1"
+    }
+}
