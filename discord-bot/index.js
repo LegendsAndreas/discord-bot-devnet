@@ -1,19 +1,11 @@
 import dotenv from 'dotenv';
 import pg from 'pg';
 import { Client, Events, GatewayIntentBits } from 'discord.js';
+import Weather from './weather.js';
 
 dotenv.config();
 
-const pool = new pg.Pool({
-    connectionString: process.env.PSQL
-});
 
-pool.connect().then(() => {
-    console.log('Connected to PostgreSQL database');
-})
-.catch(err => {
-    console.error('Error connecting to PostgreSQL database:', err);
-});
 
 const client = new Client({
     intents: [
@@ -30,7 +22,6 @@ client.once(Events.ClientReady, () => {
 
     const channelId = '1427535623861833750'; // Generel
     const channel = client.channels.cache.get(channelId);
-    pool.query("INSERT INTO test (name) VALUES ($1)", ['John Doe']);
 
     if (channel) {
         // channel.send('Bot is now active!');
@@ -39,24 +30,54 @@ client.once(Events.ClientReady, () => {
     }
 });
 
+const weather = new Weather(process.env.DMI_API_KEY);
+
 client.on(Events.MessageCreate, async (message) => {
-    if (!message.author.bot) {
-        const channel = client.channels.cache.get(message.channelId);
-        if (!channel) {
-            console.log('Channel not found!');
+    if (message.author.bot) return;
+
+    const channel = client.channels.cache.get(message.channelId);
+    if (!channel) return;
+
+   
+    if (message.content.startsWith("!weather")) {
+        const args = message.content.split(" ");
+        const city = args[1];
+
+        if (!city) {
+            await channel.send(" Use: !weather aarhus / kbh");
             return;
         }
-        
-        // Check if the bot is mentioned
-        if (message.mentions.has(client.user)) {
-            // Bot was mentioned with @
-            await channel.send(`You mentioned me, <@${message.author.id}>! How can I help?`);
-            return;
+
+        try {
+            const data = await weather.getWeather(city);
+
+            const { EmbedBuilder } = await import("discord.js");
+
+            const embed = new EmbedBuilder()
+                .setTitle(` Weather - ${data.city}`)
+                .addFields(
+                    { name: " Temperature", value: `${data.temperature}°C`, inline: true },
+                    { name: " Measured at", value: data.time }
+                )
+                .setColor(0x00AEFF);
+
+            await channel.send({ embeds: [embed] });
+
+        } catch (err) {
+            await channel.send(` ${err.message}`);
         }
-        
-        const name = message.author.id;
-        await channel.send(`Shut up <@${name}>`);
+
+        return;
     }
+
+    // 👇 KEEP THIS (mention response)
+    if (message.mentions.has(client.user)) {
+        await channel.send(`You mentioned me, <@${message.author.id}>! How can I help?`);
+        return;
+    }
+
+    // ❌ OPTIONAL: remove this if you don't want spam
+    // await channel.send(`Shut up <@${message.author.id}>`);
 });
 
 client.login(process.env.DISCORD_TOKEN);
