@@ -1,26 +1,28 @@
 {
-  "name": "discord-bot-devnet",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/LegendsAndreas/discord-bot-devnet.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "module",
-  "bugs": {
-    "url": "https://github.com/LegendsAndreas/discord-bot-devnet/issues"
-  },
-  "homepage": "https://github.com/LegendsAndreas/discord-bot-devnet#readme",
-  "dependencies": {
-    "discord.js": "^14.26.4",
-    "dotenv": "^17.4.2",
-    "pg": "^8.21.0"
-  },
-  "description": ""
+	"name": "discord-bot-devnet",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"start": "node src/index.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/LegendsAndreas/discord-bot-devnet.git"
+	},
+	"keywords": [],
+	"author": "Andreas, Kasper og Mikkel",
+	"license": "ISC",
+	"type": "module",
+	"bugs": {
+		"url": "https://github.com/LegendsAndreas/discord-bot-devnet/issues"
+	},
+	"homepage": "https://github.com/LegendsAndreas/discord-bot-devnet#readme",
+	"dependencies": {
+		"discord.js": "^14.26.4",
+		"dotenv": "^17.4.2"
+	},
+	"devDependencies": {
+		"@types/node": "^25.9.3"
+	}
 }
