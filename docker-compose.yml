@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  discord-bot:
+    build: ./discord-bot
+    ports:
+      - "3001:3001"
+    depends_on:
+      express:
+        condition: service_healthy
+
+  express:
+    build: ./express
+    ports:
+      - "80:80"
+    healthcheck:
+      test: ["CMD-SHELL", "ping -c 1 localhost:80 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5

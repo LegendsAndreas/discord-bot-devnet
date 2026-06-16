@@ -4,10 +4,9 @@ WORKDIR /app
 
 COPY package*.json ./
 COPY express.js ./
-COPY .env ./
 
 RUN npm install
 
-EXPOSE 8080
+EXPOSE 80
 
-CMD [ "node", "express.js" ]
+CMD [ "node", "." ]
