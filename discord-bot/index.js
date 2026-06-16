@@ -70,14 +70,11 @@ client.on(Events.MessageCreate, async (message) => {
         return;
     }
 
-    // 👇 KEEP THIS (mention response)
+  
     if (message.mentions.has(client.user)) {
         await channel.send(`You mentioned me, <@${message.author.id}>! How can I help?`);
         return;
     }
-
-    // ❌ OPTIONAL: remove this if you don't want spam
-    // await channel.send(`Shut up <@${message.author.id}>`);
 });
 
 client.login(process.env.DISCORD_TOKEN);
