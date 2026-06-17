@@ -20,12 +20,17 @@ app.get("/forecast", async (req, res) => {
 
 	if (cachedForecast) return res.status(200).send(JSON.parse(cachedForecast));
 
+	const station = await Weather.getStation(req.query.stationId);
 	const forecast = await Weather.get10DayForecast(req.query.stationId);
 
-	await client.set(`forecast:${req.query.stationId}`, JSON.stringify(forecast), { expiration: { type: "EX", value: 3600 } });
+	const data = { station, forecast };
 
-	res.status(200).send(forecast);
+	await client.set(`forecast:${req.query.stationId}`, JSON.stringify(data), { expiration: { type: "EX", value: 3600 } });
+
+	res.status(200).send(data);
 });
+
+app.get("/station/:stationId", async (req, res) => res.status(200).send(await Weather.getStation(req.params.stationId)));
 
 app.get("/stations", async (req, res) => res.status(200).send(await Weather.getStations()));
 

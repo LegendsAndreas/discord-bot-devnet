@@ -15,9 +15,9 @@ export default new Command({
 		},
 	],
 	run: async ({ client, interaction }) => {
-		const stationId = interaction.options.get("city");
+		const stationId = interaction.options.get("city").value;
 
-		const data = await Weather.getForecast(stationId.value);
+		const data = await Weather.getForecast(stationId);
 
 		if (!data) return interaction.reply({ content: "Could not find that city.", ephemeral: true });
 
@@ -26,6 +26,6 @@ export default new Command({
 		// 	.addFields({ name: "Temperature", value: `${data.features[0].properties.value}°C`, inline: true }, { name: "Measured at", value: data.features[0].properties.created })
 		// 	.setColor(0x00aeff);
 
-		await interaction.reply({ content: `Here is the forecast for that city.\n\`\`\`\`${JSON.stringify(data, null, 4)}\`\`\``, ephemeral: true });
+		await interaction.reply({ content: `Here is the forecast for that city.\n\`\`\`json${JSON.stringify(data, null, 4)}\`\`\``, ephemeral: true });
 	},
 });

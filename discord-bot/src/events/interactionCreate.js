@@ -9,7 +9,7 @@ export default new Event(async (client, interaction) => {
 
 		return interaction.respond(
 			stations
-				.filter((station) => station.name.toLowerCase().includes(focusedOption.toLowerCase()))
+				.filter((station) => focusedOption.length === 0 || station.name.toLowerCase().includes(focusedOption.toLowerCase()))
 				.map((station) => ({
 					name: station.name,
 					value: station.id,

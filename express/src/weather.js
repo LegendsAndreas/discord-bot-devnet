@@ -9,18 +9,14 @@ export default class Weather {
 		return this.build10DayForecast(forecast);
 	}
 
-	static async getStationName(stationId) {
-		const station = await this.getStation(stationId);
-
-		return station.name;
-	}
-
 	static async getStation(stationId) {
 		const response = await fetch(`https://opendataapi.dmi.dk/v2/metObs/collections/station/items?stationId=${stationId}`);
 
 		if (!response.ok) return null;
 
 		const data = await response.json();
+
+		if (!data?.features || data.features.length === 0) return null;
 
 		const feature = data.features[0];
 
