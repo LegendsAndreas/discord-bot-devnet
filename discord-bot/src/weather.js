@@ -1,44 +1,21 @@
 export default class Weather {
-	constructor() {
-		this.stations = {
-			aarhus: {
-				name: "Aarhus",
-				id: "06070",
-			},
-			kbh: {
-				name: "København",
-				id: "06180",
-			},
-		};
+	static async getStations() {
+		const response = await fetch("https://juggalos.mercantec.tech/stations");
+		
+		if (!response.ok) return [];
+		
+		const jsonResponse = await response.json();
+		
+		return jsonResponse;
 	}
 
-	async getWeather(citykey) {
-		const city = this.stations[citykey];
+	static async getWeather(stationId) {
+		const response = await fetch(`https://juggalos.mercantec.tech/weather?stationId=${stationId}`);
 
-		if (!city) {
-			throw new Error("city not supported");
-		}
+		if (!response.ok) return null;
 
-		const url = `https://dmigw.govcloud.dk/v2/metObs/collections/observation/items?stationId=${city.id}&parameterId=temp_dry&limit=1`;
+		const jsonResponse = await response.json();
 
-		const res = await fetch(url, {
-			headers: {
-				"X-Gravitee-Api-Key": this.apiKey,
-			},
-		});
-
-		const data = await res.json();
-
-		if (!data.features || data.features.length === 0) {
-			throw new Error("No data found");
-		}
-
-		const obs = data.features[0];
-
-		return {
-			city: city.name,
-			temperature: obs.properties.value,
-			time: obs.properties.observed,
-		};
+		return jsonResponse;
 	}
 }

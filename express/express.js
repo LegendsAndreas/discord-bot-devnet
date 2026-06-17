@@ -8,25 +8,17 @@ app.get("/weather", async (req, res) => {
 
 	const id = req.query.stationId;
 
-	if (!id) {
-		return res.status(400).send("Missing stationId query parameter");
-	}
+	if (!id) return res.status(400).send("Missing stationId query parameter");
 
 	console.log(`Received request for stationId: ${id}`);
 
-	const url = `https://opendataapi.dmi.dk/v2/metObs/collections/observation/items?parameterId=temp_dry&period=latest&stationId=${id}`;
+	const response = await fetch(`https://opendataapi.dmi.dk/v2/metObs/collections/observation/items?parameterId=temp_dry&period=latest&stationId=${id}`);
 
-	await fetch(url)
-		.then(async (response) => {
-			const jsonResponse = await response.json();
+	if (!response.ok) return res.status(500).send({ error: "Error fetching weather data" });
 
-			res.send(jsonResponse);
-		})
-		.catch((error) => {
-			console.error("Error fetching weather data:", error);
+	const jsonResponse = await response.json();
 
-			res.status(500).send("Error fetching weather data");
-		});
+	res.status(200).send(jsonResponse);
 });
 
 app.get("/stations", async (req, res) => {
@@ -46,6 +38,4 @@ app.get("/stations", async (req, res) => {
 	res.status(200).send(prettifiedResponse);
 });
 
-app.listen(port, () => {
-	console.log(`Example app listening on port ${port}`);
-});
+app.listen(port, () => console.log(`Example app listening on port ${port}`));

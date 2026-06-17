@@ -1,5 +1,6 @@
 import { ApplicationCommandOptionType, EmbedBuilder } from "discord.js";
 import Command from "../structures/command.js";
+import Weather from "../weather.js";
 
 export default new Command({
 	name: "weather",
@@ -9,13 +10,14 @@ export default new Command({
 			name: "city",
 			description: "The city to get the weather for",
 			type: ApplicationCommandOptionType.String,
+			autocomplete: true,
 			required: true,
 		},
 	],
 	run: async ({ client, interaction }) => {
-		const city = interaction.options.getString("city");
+		const stationId = interaction.options.get("city")?.value;
 
-		const data = await client.weather.getWeather(city);
+		const data = await Weather.getWeather(stationId);
 
 		const embed = new EmbedBuilder()
 			.setTitle(` Weather - ${data.city}`)

@@ -1,11 +1,23 @@
 import Event from "../structures/event.js";
+import Weather from "../weather.js";
 
 export default new Event(async (client, interaction) => {
-	if (!interaction.isChatInputCommand()) return;
+	if (interaction.isAutocomplete() && interaction.commandName === "weather") {
+		const stations = await Weather.getStations();
 
-	const command = client.commands.get(interaction.commandName);
+		return interaction.respond(
+			stations.map((station) => ({
+				name: station.name,
+				value: station.id,
+			})),
+		);
+	}
 
-	if (!command) return interaction.editReply("Error!");
+	if (interaction.isChatInputCommand()) {
+		const command = client.commands.get(interaction.commandName);
 
-	command.run({ client, interaction, options: interaction.options });
+		if (!command) return interaction.editReply("Error!");
+
+		command.run({ client, interaction, options: interaction.options });
+	}
 });
