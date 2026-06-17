@@ -4,7 +4,7 @@ import { createClient } from "redis";
 
 const client = createClient({
 	socket: {
-		host: "localhost",
+		host: "10.133.51.141",
 		port: 6379,
 	},
 	password: process.env.REDIS_PASSWORD,
@@ -15,7 +15,7 @@ client.on("error", (err) => console.log("Redis Client Error", err));
 const app = express();
 const port = 80;
 
-app.get("/weather", async (req, res) => {
+app.get("/forecast", async (req, res) => {
 	const cachedForecast = await client.get(`forecast:${req.query.stationId}`);
 
 	if (cachedForecast) return res.status(200).send(JSON.parse(cachedForecast));

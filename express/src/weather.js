@@ -4,6 +4,8 @@ export default class Weather {
 
 		const forecast = await this.getForecast(station.lat, station.lon);
 
+		if (!forecast) return null;
+
 		return this.build10DayForecast(forecast);
 	}
 
