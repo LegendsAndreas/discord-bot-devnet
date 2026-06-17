@@ -1,6 +1,6 @@
 export default class Weather {
 	static async getStations() {
-		const response = await fetch("http://localhost/stations");
+		const response = await fetch("https://juggalos.mercantec.tech/stations");
 
 		if (!response.ok) return [];
 
@@ -10,7 +10,7 @@ export default class Weather {
 	}
 
 	static async getForecast(stationId) {
-		const response = await fetch(`http://localhost/forecast?stationId=${stationId}`);
+		const response = await fetch(`https://juggalos.mercantec.tech/forecast?stationId=${stationId}`);
 
 		if (!response.ok) return null;
 
