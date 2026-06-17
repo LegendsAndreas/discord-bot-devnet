@@ -2,14 +2,21 @@ import Event from "../structures/event.js";
 import Weather from "../weather.js";
 
 export default new Event(async (client, interaction) => {
+	const stations = await Weather.getStations();
+
 	if (interaction.isAutocomplete() && interaction.commandName === "weather") {
-		const stations = await Weather.getStations();
+		const focusedOption = interaction.options.getFocused(true)?.value;
+
+		console.log(stations);
 
 		return interaction.respond(
-			stations.map((station) => ({
-				name: station.name,
-				value: station.id,
-			})),
+			stations
+				.filter((station) => station.name.toLowerCase().includes(focusedOption.toLowerCase()))
+				.map((station) => ({
+					name: station.name,
+					value: station.id,
+				}))
+				.slice(0, 25),
 		);
 	}
 

@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType, EmbedBuilder } from "discord.js";
+import { ApplicationCommandOptionType } from "discord.js";
 import Command from "../structures/command.js";
 import Weather from "../weather.js";
 
@@ -15,15 +15,17 @@ export default new Command({
 		},
 	],
 	run: async ({ client, interaction }) => {
-		const stationId = interaction.options.get("city")?.value;
+		const stationId = interaction.options.get("city");
 
-		const data = await Weather.getWeather(stationId);
+		const data = await Weather.getForecast(stationId.value);
 
-		const embed = new EmbedBuilder()
-			.setTitle(` Weather - ${data.city}`)
-			.addFields({ name: " Temperature", value: `${data.temperature}°C`, inline: true }, { name: " Measured at", value: data.time })
-			.setColor(0x00aeff);
+		if (!data) return interaction.reply({ content: "Could not find that city.", ephemeral: true });
 
-		await interaction.reply({ embeds: [embed], ephemeral: true });
+		// const embed = new EmbedBuilder()
+		// 	.setTitle("Forecast")
+		// 	.addFields({ name: "Temperature", value: `${data.features[0].properties.value}°C`, inline: true }, { name: "Measured at", value: data.features[0].properties.created })
+		// 	.setColor(0x00aeff);
+
+		await interaction.reply({ content: `Here is the forecast for that city.\n\`\`\`\`${JSON.stringify(data, null, 4)}\`\`\``, ephemeral: true });
 	},
 });
