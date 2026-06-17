@@ -3,12 +3,12 @@ import Command from "../structures/command.js";
 import Weather from "../weather.js";
 
 export default new Command({
-	name: "weather",
-	description: "Get the weather for a specific city",
+	name: "forecast",
+	description: "Get the weather forecast for a specific city",
 	options: [
 		{
 			name: "city",
-			description: "The city to get the weather for",
+			description: "The city to get the weather forecast for",
 			type: ApplicationCommandOptionType.String,
 			autocomplete: true,
 			required: true,
