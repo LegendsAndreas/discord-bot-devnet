@@ -7,11 +7,9 @@ export default new Event(async (client, interaction) => {
 	if (interaction.isAutocomplete() && interaction.commandName === "weather") {
 		const focusedOption = interaction.options.getFocused(true)?.value;
 
-		console.log(stations);
-
 		return interaction.respond(
 			stations
-				.filter((station) => station.name.toLowerCase().includes(focusedOption.toLowerCase()))
+				.filter((station) => focusedOption.length === 0 || station.name.toLowerCase().includes(focusedOption.toLowerCase()))
 				.map((station) => ({
 					name: station.name,
 					value: station.id,
