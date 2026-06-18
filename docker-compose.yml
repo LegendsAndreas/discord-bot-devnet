@@ -4,8 +4,8 @@ services:
         container_name: discord-bot
         ports:
             - "3001:3001"
-        depends_on:
-            - express
+        #depends_on:
+        #    - express
         #     condition: service_healthy
 
     express:

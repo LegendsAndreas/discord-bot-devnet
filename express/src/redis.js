@@ -2,6 +2,9 @@ import { createClient } from "redis";
 
 class Redis {
 	constructor() {
+		if (!process.env.REDIS_PASSWORD) {
+			throw new Error("Missing REDIS_PASSWORD environment variable");
+		}
 		this.client = createClient({
 			socket: {
 				host: "10.133.51.141",

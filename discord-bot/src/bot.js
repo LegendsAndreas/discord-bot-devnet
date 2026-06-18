@@ -28,7 +28,9 @@ export default class Bot extends Client {
 
 				this.loadCommands();
 			})
-			.catch(() => process.exit(1));
+			.catch(() => {
+				throw new Error("Failed to login to Discord. Please check your token.");
+			});
 	}
 
 	loadEvents() {
