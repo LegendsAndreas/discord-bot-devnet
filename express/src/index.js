@@ -3,7 +3,7 @@ import Weather from "./weather.js";
 import redis from "./redis.js";
 
 const app = express();
-const port = 81;
+const port = 80;
 
 app.get("/forecast", async (req, res) => {
 	const latitude = Number(req.query.latitude);
