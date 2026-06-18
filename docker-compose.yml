@@ -12,7 +12,7 @@ services:
         build: ./express
         container_name: express
         expose:
-            - "80"
+            - "81:80"
         depends_on:
             - redis
         # healthcheck:
