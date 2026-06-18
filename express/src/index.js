@@ -1,39 +1,39 @@
 import express from "express";
 import Weather from "./weather.js";
-import { createClient } from "redis";
-
-const client = createClient({
-	socket: {
-		host: "10.133.51.141",
-		port: 6379,
-	},
-	password: process.env.REDIS_PASSWORD,
-});
-
-client.on("error", (err) => console.log("Redis Client Error", err));
+import redis from "./redis.js";
 
 const app = express();
 const port = 80;
 
 app.get("/forecast", async (req, res) => {
-	const cachedForecast = await client.get(`forecast:${req.query.stationId}`);
+	const latitude = Number(req.query.latitude);
+	const longitude = Number(req.query.longitude);
+
+	if (!latitude || !longitude) return res.status(400).send({ error: "Missing latitude or longitude query parameters" });
+
+	const cachedForecast = await redis.getCachedForecast(latitude, longitude);
 
 	if (cachedForecast) return res.status(200).send(JSON.parse(cachedForecast));
 
-	const station = await Weather.getStation(req.query.stationId);
-	const forecast = await Weather.get10DayForecast(req.query.stationId);
+	const forecast = await Weather.getForecastByCoordinates(latitude, longitude);
 
-	const data = { station, forecast };
+	if (!forecast) return res.status(404).send({ error: "Could not find forecast for those coordinates" });
 
-	await client.set(`forecast:${req.query.stationId}`, JSON.stringify(data), { expiration: { type: "EX", value: 3600 } });
+	await redis.setCachedForecast(latitude, longitude, forecast);
 
-	res.status(200).send(data);
+	res.status(200).send(forecast);
 });
 
-app.get("/station/:stationId", async (req, res) => res.status(200).send(await Weather.getStation(req.params.stationId)));
+app.get("/search/:query", async (req, res) => {
+	const cachedSearch = await redis.getCachedSearch(req.params.query);
 
-app.get("/stations", async (req, res) => res.status(200).send(await Weather.getStations()));
+	if (cachedSearch) return res.status(200).send(JSON.parse(cachedSearch));
+
+	const search = await Weather.search(req.params.query);
+
+	await redis.setCachedSearch(req.params.query, search);
+
+	res.status(200).send(search);
+});
 
 app.listen(port, () => console.log(`Example app listening on port ${port}`));
-
-await client.connect();

@@ -1,8 +1,6 @@
 export default class Weather {
-	static async getStations() {
-		console.log("Getting stations...");
-
-		const response = await fetch("https://juggalos.mercantec.tech/stations");
+	static async search(query) {
+		const response = await fetch("https://juggalos.mercantec.tech/search/" + query);
 
 		if (!response.ok) return [];
 
@@ -11,10 +9,8 @@ export default class Weather {
 		return jsonResponse;
 	}
 
-	static async getForecast(stationId) {
-		console.log("Getting forecast for station ID:", stationId);
-
-		const response = await fetch(`https://juggalos.mercantec.tech/forecast?stationId=${stationId}`);
+	static async getForecast(latitude, longitude) {
+		const response = await fetch(`https://juggalos.mercantec.tech/forecast?latitude=${latitude}&longitude=${longitude}`);
 
 		if (!response.ok) return null;
 

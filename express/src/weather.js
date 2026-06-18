@@ -1,130 +1,180 @@
 export default class Weather {
-	static async get10DayForecast(stationId) {
-		const station = await this.getStation(stationId);
-
-		const forecast = await this.getForecast(station.lat, station.lon);
-
-		if (!forecast) return null;
-
-		return this.build10DayForecast(forecast);
-	}
-
-	static async getStation(stationId) {
-		const response = await fetch(`https://opendataapi.dmi.dk/v2/metObs/collections/station/items?stationId=${stationId}`);
+	static async getForecastByCoordinates(latitude, longitude) {
+		const response = await fetch(`https://www.dmi.dk/NinJo2DmiDk/ninjo2dmidk?cmd=llj&lat=${latitude}&lon=${longitude}`);
 
 		if (!response.ok) return null;
 
 		const data = await response.json();
 
-		if (!data?.features || data.features.length === 0) return null;
-
-		const feature = data.features[0];
-
-		const [lon, lat] = feature.geometry.coordinates;
-
-		return { id: feature.properties.stationId, name: feature.properties.name, lat, lon };
+		return await this.buildForecast(data);
 	}
 
-	static async getStations() {
-		const response = await fetch(`https://opendataapi.dmi.dk/v2/metObs/collections/station/items`);
+	static async buildForecast(data) {
+		const search = await this.searchById(data.id);
 
-		if (!response.ok) return [];
+		const sunrise = this.parseSunTime(data.sunrise);
+		const sunset = this.parseSunTime(data.sunset);
 
-		const data = await response.json();
+		const now = data.timeserie[0];
 
-		return data.features
-			.filter((f) => f.properties.country === "DNK")
-			.map((f) => {
-				const [lon, lat] = f.geometry.coordinates;
+		const current = {
+			temperature: Math.round(now.temp),
+			condition: this.symbolToEmoji(now.symbol),
 
-				return { id: f.properties.stationId, name: f.properties.name, lat, lon };
-			})
-			.filter((item, index, self) => index === self.findIndex((t) => t.id === item.id));
-	}
+			humidity: Math.round(now.humidity),
 
-	static async getForecast(lat, lon) {
-		const params = new URLSearchParams({
-			coords: `POINT(${lon} ${lat})`,
-			crs: "crs84",
-			"parameter-name": "temperature-2m,total-precipitation",
-		});
+			wind: {
+				speed: Number(now.windSpeed.toFixed(1)),
+				direction: now.windDir,
+			},
 
-		const response = await fetch(`https://opendataapi.dmi.dk/v1/forecastedr/collections/harmonie_dini_eps_means/position?${params}`);
+			pressure: Math.round(now.pressure),
 
-		if (!response.ok) return null;
+			sunrise,
+			sunset,
+		};
 
-		return response.json();
-	}
+		const hourly = data.timeserie.slice(0, 24).map((item) => {
+			const date = new Date(item.localTimeIso);
 
-	static build10DayForecast(coverage) {
-		const t = coverage.domain.axes.t.values;
+			const hours = date.getHours();
 
-		const temp = coverage.ranges["temperature-2m"].values;
-		const rain = coverage.ranges["total-precipitation"].values;
+			const isSunset = hours === sunset.hour && Math.abs(date.getMinutes() - sunset.minute) <= 30;
 
-		const days = {};
-
-		for (let i = 0; i < t.length; i++) {
-			const date = t[i].slice(0, 10);
-
-			const tempC = temp[i] - 273.15;
-			const rainVal = rain[i] ?? 0;
-
-			if (!days[date]) {
-				days[date] = {
-					minTemp: tempC,
-					maxTemp: tempC,
-					rainStart: rainVal,
-					rainEnd: rainVal,
-					rainHours: 0,
-					totalHours: 0,
-				};
-			}
-
-			const d = days[date];
-
-			d.minTemp = Math.min(d.minTemp, tempC);
-			d.maxTemp = Math.max(d.maxTemp, tempC);
-
-			d.totalHours++;
-
-			if (rainVal > 0.05) d.rainHours++;
-
-			d.rainEnd = rainVal;
-		}
-
-		let result = Object.entries(days).map(([date, d]) => {
-			const mm = Math.max(0, d.rainEnd - d.rainStart);
-
-			const rainChance = Math.round((d.rainHours / d.totalHours) * 100);
+			const isSunrise = hours === sunrise.hour && Math.abs(date.getMinutes() - sunrise.minute) <= 30;
 
 			return {
-				date,
-				minTemp: Number(d.minTemp.toFixed(1)),
-				maxTemp: Number(d.maxTemp.toFixed(1)),
-				rainMm: Number(mm.toFixed(1)),
-				rainChance,
+				time: this.parseSunTime(hours.toString().padStart(2, "0") + date.getMinutes().toString().padStart(2, "0")),
+
+				temp: Math.round(item.temp),
+
+				condition: this.symbolToEmoji(item.symbol),
+
+				precipitationChance: item.precip1,
+
+				windSpeed: Number(item.windSpeed.toFixed(1)),
+
+				isSunrise,
+				isSunset,
 			};
 		});
 
-		result.sort((a, b) => a.date.localeCompare(b.date));
+		const daily = data.aggData.map((day) => {
+			const date = new Date(`${day.time.slice(0, 4)}-${day.time.slice(4, 6)}-${day.time.slice(6, 8)}`);
 
-		while (result.length < 10) {
-			const last = result[result.length - 1];
+			const symbolEntry = data.twelveHourSymbols.find((s) => s.time.startsWith(day.time));
 
-			const d = new Date(last.date);
+			const weekDay = date.toLocaleDateString("da-DK", { weekday: "long" });
 
-			d.setDate(d.getDate() + 1);
+			return {
+				date: weekDay.charAt(0).toUpperCase() + weekDay.slice(1),
 
-			result.push({
-				date: d.toISOString().slice(0, 10),
-				minTemp: last.minTemp,
-				maxTemp: last.maxTemp,
-				rainMm: 0,
-				rainChance: 0,
-			});
-		}
+				minTemp: day.minTemp,
+				maxTemp: day.maxTemp,
 
-		return result.slice(0, 10);
+				avgTemp: day.meanTemp,
+
+				precipitation: Number(day.precipSum.toFixed(1)),
+
+				uvIndex: day.uvRadiation,
+
+				condition: this.symbolToEmoji(symbolEntry?.symbol12 || 3),
+			};
+		});
+
+		return {
+			...search,
+			current,
+			hourly,
+			daily,
+		};
+	}
+
+	static async search(query, limit = 25) {
+		const searchParams = new URLSearchParams({
+			q: `(name:"${query}" AND realm:1)^4 OR (name_ngram:"${query}" AND realm:1)`,
+			rows: limit,
+			wt: "json",
+		});
+
+		const response = await fetch(`https://www.dmi.dk/solr/city_core/select?${searchParams}`);
+
+		if (!response.ok) return [];
+
+		const text = await response.text();
+
+		const data = JSON.parse(text);
+
+		return data.response.docs
+			.filter((doc) => doc.countryname === "Danmark" && doc.latitude && doc.longitude)
+			.map((doc) => ({
+				id: doc.id,
+				city: doc.name_ngram,
+				municipality: doc.municipality,
+				region: doc.region?.[0],
+				latitude: doc.latitude?.[0],
+				longitude: doc.longitude?.[0],
+			}));
+	}
+
+	static async searchById(id) {
+		const searchParams = new URLSearchParams({
+			q: `(id:"${id}" AND realm:1)^4`,
+			rows: 1,
+			wt: "json",
+		});
+
+		const response = await fetch(`https://www.dmi.dk/solr/city_core/select?${searchParams}`);
+
+		if (!response.ok) return null;
+
+		const text = await response.text();
+
+		const data = JSON.parse(text);
+
+		return data.response.docs
+			.filter((doc) => doc.countryname === "Danmark")
+			.map((doc) => ({
+				id: doc.id,
+				city: doc.name_ngram,
+				municipality: doc.municipality,
+				region: doc.region[0],
+				latitude: doc.latitude[0],
+				longitude: doc.longitude[0],
+			}))?.[0];
+	}
+
+	static parseSunTime(hhmm) {
+		const now = new Date();
+
+		const hour = parseInt(hhmm.slice(0, 2));
+		const minute = parseInt(hhmm.slice(2, 4));
+
+		now.setHours(hour, minute, 0, 0);
+
+		return Math.floor(now.getTime() / 1000);
+	}
+
+	static symbolToEmoji(symbol) {
+		const map = {
+			// Day
+			1: "☀️", // Clear
+			2: "🌤️", // Partly cloudy
+			3: "☁️", // Cloudy
+
+			// Night
+			101: "🌙", // Clear night
+			102: "🌙☁️", // Partly cloudy night
+			103: "☁️🌙", // Cloudy night
+
+			// Rain
+			60: "🌧️",
+			80: "🌦️",
+			160: "🌧️",
+			180: "⛈️",
+			181: "⛈️⚡",
+		};
+
+		return map[symbol] || "❓";
 	}
 }

@@ -3,16 +3,23 @@ import Weather from "../weather.js";
 
 export default new Event(async (client, interaction) => {
 	if (interaction.isAutocomplete() && interaction.commandName === "forecast") {
-		const stations = await Weather.getStations();
+		const query = interaction.options.getFocused(true)?.value;
 
-		const focusedOption = interaction.options.getFocused(true)?.value;
+		if (!query || query.length < 1)
+			return interaction.respond([
+				{
+					name: "Start typing to search for a city",
+					value: "0,0",
+				},
+			]);
+
+		const locations = await Weather.search(query);
 
 		return interaction.respond(
-			stations
-				.filter((station) => focusedOption.length === 0 || station.name.toLowerCase().includes(focusedOption.toLowerCase()))
-				.map((station) => ({
-					name: station.name,
-					value: station.id,
+			locations
+				.map((location) => ({
+					name: location.city + " (" + location.municipality + ", " + location.region + ")",
+					value: location.latitude + "," + location.longitude,
 				}))
 				.slice(0, 25),
 		);
