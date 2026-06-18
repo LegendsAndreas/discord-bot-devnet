@@ -1,38 +1,36 @@
-version: "3.9"
-
 services:
-  discord-bot:
-    build: ./discord-bot
-    container_name: discord-bot
-    ports:
-      - "3001:3001"
-    depends_on:
-      - express
-    #     condition: service_healthy
+    discord-bot:
+        build: ./discord-bot
+        container_name: discord-bot
+        ports:
+            - "3001:3001"
+        depends_on:
+            - express
+        #     condition: service_healthy
 
-  express:
-    build: ./express
-    container_name: express
-    ports:
-      - "80:80"
-    depends_on:
-      - redis
-    # healthcheck:
-    #   test: ["CMD-SHELL", "ping -c 1 localhost:80 || exit 1"]
-    #   interval: 5s
-    #   timeout: 5s
-    #   retries: 5
+    express:
+        build: ./express
+        container_name: express
+        ports:
+            - "80:80"
+        depends_on:
+            - redis
+        # healthcheck:
+        #   test: ["CMD-SHELL", "ping -c 1 localhost:80 || exit 1"]
+        #   interval: 5s
+        #   timeout: 5s
+        #   retries: 5
 
-  redis:
-      image: redis:latest
-      container_name: redis
-      ports:
-          - '6379:6379'
-      volumes:
-          - redis-data:/data
-      environment:
-          - REDIS_ARGS=--requirepass 16jLnbfCan3RAtP --appendonly yes
-      restart: unless-stopped
+    redis:
+        image: redis:latest
+        container_name: redis
+        ports:
+            - "6379:6379"
+        volumes:
+            - redis-data:/data
+        environment:
+            - REDIS_ARGS=--requirepass 16jLnbfCan3RAtP --appendonly yes
+        restart: unless-stopped
 
 volumes:
     redis-data:
