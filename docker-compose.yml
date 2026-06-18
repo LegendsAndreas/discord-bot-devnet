@@ -11,8 +11,8 @@ services:
     express:
         build: ./express
         container_name: express
-        ports:
-            - "80:80"
+        expose:
+            - "80"
         depends_on:
             - redis
         # healthcheck:
