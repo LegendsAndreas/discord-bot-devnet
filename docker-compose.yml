@@ -11,7 +11,7 @@ services:
     express:
         build: ./express
         container_name: express
-        expose:
+        ports:
             - "81:81"
         depends_on:
             - redis
