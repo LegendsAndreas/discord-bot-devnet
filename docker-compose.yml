@@ -3,7 +3,7 @@ services:
         build: ./discord-bot
         container_name: discord-bot
         environment:
-            - BOT_TOKEN=${{project.BOT_TOKEN}}
+            - BOT_TOKEN=${project.BOT_TOKEN}
         ports:
             - "3001:3001"
         #depends_on:
@@ -14,7 +14,7 @@ services:
         build: ./express
         container_name: express
         environment:
-            - REDIS_PASSWORD=${{project.REDIS_PASSWORD}}
+            - REDIS_PASSWORD=${project.REDIS_PASSWORD}
         expose:
             - "80"
         depends_on:
