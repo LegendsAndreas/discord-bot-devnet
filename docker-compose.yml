@@ -3,7 +3,7 @@ services:
         build: ./discord-bot
         container_name: discord-bot
         environment:
-            - BOT_TOKEN=${project.BOT_TOKEN}
+            - BOT_TOKEN=${BOT_TOKEN}
         ports:
             - "3001:3001"
         #depends_on:
@@ -14,7 +14,7 @@ services:
         build: ./express
         container_name: express
         environment:
-            - REDIS_PASSWORD=${project.REDIS_PASSWORD}
+            - REDIS_PASSWORD=${REDIS_PASSWORD}
         expose:
             - "80"
         depends_on:
@@ -33,7 +33,7 @@ services:
         volumes:
             - redis-data:/data
         environment:
-            - REDIS_ARGS=--requirepass 16jLnbfCan3RAtP --appendonly yes
+            - REDIS_ARGS=--requirepass ${REDIS_PASSWORD} --appendonly yes
         restart: unless-stopped
 
 volumes:
