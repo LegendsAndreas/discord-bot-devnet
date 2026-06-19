@@ -2,6 +2,8 @@ services:
     discord-bot:
         build: ./discord-bot
         container_name: discord-bot
+        env_file:
+            - path: .env
         ports:
             - "3001:3001"
         #depends_on:
@@ -13,6 +15,8 @@ services:
         container_name: express
         expose:
             - "80"
+        env_file:
+            - path: .env
         depends_on:
             - redis
         # healthcheck:
