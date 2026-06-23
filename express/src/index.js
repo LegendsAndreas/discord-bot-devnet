@@ -7,7 +7,10 @@ const port = 80;
 
 app.use((req, res, next) => {
 	const secret = process.env.DISCORD_SECRET;
-
+	if (!secret) {
+		throw new Error("DISCORD_SECRET environment variable is not set");
+	}
+	
 	if (req.headers["x-api-key"] !== secret) {
 		return res.status(403).json({ error: "Unauthorized" });
 	}
