@@ -1,9 +1,8 @@
 export default class Weather {
 	static async search(query) {
-		const secret = process.env.DISCORD_SECRET;
 		const response = await fetch("https://juggalos.mercantec.tech/search/" + query, {
 			headers: {
-				"x-api-key": secret,
+				"x-api-key": process.env.DISCORD_SECRET,
 			}
 		});
 
@@ -15,10 +14,9 @@ export default class Weather {
 	}
 
 	static async getForecast(latitude, longitude) {
-		const secret = process.env.DISCORD_SECRET;
 		const response = await fetch(`https://juggalos.mercantec.tech/forecast?latitude=${latitude}&longitude=${longitude}`, {
 			headers: {
-				"x-api-key": secret,
+				"x-api-key": process.env.DISCORD_SECRET,
 			}
 		});
 
