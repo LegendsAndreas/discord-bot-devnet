@@ -10,7 +10,9 @@ app.use((req, res, next) => {
 	if (!secret) {
 		throw new Error("DISCORD_SECRET environment variable is not set");
 	}
-	
+	const ip = req.ip || req.connection.remoteAddress;
+	console.log(`Incoming request from ${ip} to ${req.path}`);
+
 	if (req.headers["x-api-key"] !== secret) {
 		return res.status(403).json({ error: "Unauthorized" });
 	}
