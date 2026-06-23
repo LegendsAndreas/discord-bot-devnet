@@ -4,6 +4,7 @@ services:
         container_name: discord-bot
         environment:
             - DISCORD_TOKEN=${DISCORD_TOKEN}
+            - DISCORD_SECRET=${DISCORD_SECRET}
         ports:
             - "3001:3001"
         #depends_on:
@@ -15,6 +16,7 @@ services:
         container_name: express
         environment:
             - REDIS_PASSWORD=${REDIS_PASSWORD}
+            - DISCORD_SECRET=${DISCORD_SECRET}
         expose:
             - "80"
         depends_on:
