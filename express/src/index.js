@@ -5,6 +5,16 @@ import redis from "./redis.js";
 const app = express();
 const port = 80;
 
+app.use((req, res, next) => {
+	const secret = process.env.DISCORD_SECRET;
+
+	if (req.headers["x-api-key"] !== secret) {
+		return res.status(403).json({ error: "Unauthorized" });
+	}
+
+	next();
+});
+
 app.get("/forecast", async (req, res) => {
 	const latitude = Number(req.query.latitude);
 	const longitude = Number(req.query.longitude);
