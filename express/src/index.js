@@ -12,6 +12,20 @@ app.use((req, res, next) => {
 	}
 	const ip = req.ip || req.connection.remoteAddress;
 	console.log(`Incoming request from ${ip} to ${req.path}`);
+	
+    const isLocalhost =
+        ip === "127.0.0.1" ||
+        ip === "::1" ||
+        ip === "::ffff:127.0.0.1";
+
+    const isPrivateNetwork =
+        ip.startsWith("::ffff:10.") ||
+        ip.startsWith("::ffff:192.168.") ||
+        ip.startsWith("::ffff:172.");
+
+	if (!isLocalhost && !isPrivateNetwork) {
+		return res.status(403).json({ error: "Unauthorized ip address" });
+	}
 
 	if (req.headers["x-api-key"] !== secret) {
 		return res.status(403).json({ error: "Unauthorized" });
