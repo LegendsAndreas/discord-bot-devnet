@@ -12,6 +12,7 @@ app.use((req, res, next) => {
 	}
 	const ip = req.ip || req.connection.remoteAddress;
 	console.log(`Incoming request from ${ip} to ${req.path}`);
+	console.log("X: " + req.headers.get("x-forwarded-for") ?? req.ip ?? req.connection.remoteAddress);
 	
     const isLocalhost =
         ip === "127.0.0.1" ||
