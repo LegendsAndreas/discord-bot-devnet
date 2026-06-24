@@ -1,5 +1,19 @@
+x-common-security: &common-security
+    user: "1001:1001"
+    read_only: true
+    tmpfs:
+        - /tmp:rw,noexec,nosuid
+    cap_drop:
+        - ALL
+    security_opt:
+        - no-new-privileges:true
+    mem_limit: 256m
+    cpus: 0.5
+    pids_limit: 100
+
 services:
     discord-bot:
+        <<: *common-security
         build: ./discord-bot
         container_name: discord-bot
         environment:
@@ -12,6 +26,7 @@ services:
         ##     condition: service_healthy
 
     express:
+        <<: *common-security
         build: ./express
         container_name: express
         environment:
@@ -28,6 +43,7 @@ services:
         #   retries: 5
 
     redis:
+        <<: *common-security
         image: redis:latest
         container_name: redis
         ports:
