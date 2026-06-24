@@ -43,6 +43,8 @@ services:
             retries: 5
 
     redis:
+        <<: *common-security
+        user: "999:999"
         image: redis:latest
         container_name: redis
         ports:
@@ -53,17 +55,6 @@ services:
             - REDIS_ARGS=--requirepass ${REDIS_PASSWORD} --appendonly yes
         restart: unless-stopped
         
-        user: "1001:1001"
-        tmpfs:
-          - /tmp
-        cap_drop:
-          - ALL
-        mem_limit: 256m
-        cpus: 0.5
-        pids_limit: 100
-        security_opt:
-            - no-new-privileges:true
-
 volumes:
     redis-data:
         driver: local
