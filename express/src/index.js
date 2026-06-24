@@ -6,6 +6,10 @@ const app = express();
 const port = 80;
 
 app.use((req, res, next) => {
+	if (req.path === "/health") {
+		return next();
+	}
+
 	const secret = process.env.DISCORD_SECRET;
 	if (!secret) {
 		throw new Error("DISCORD_SECRET environment variable is not set");
