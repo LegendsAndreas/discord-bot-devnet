@@ -44,7 +44,7 @@ services:
 
     redis:
         <<: *common-security
-        user: "999:999"
+        user: "999:999" # Has to be "999:999" for permission reasons
         image: redis:latest
         container_name: redis
         ports:
