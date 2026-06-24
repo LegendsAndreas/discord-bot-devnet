@@ -44,6 +44,7 @@ services:
 
     redis:
         <<: *common-security
+        read_only: false
         image: redis:latest
         container_name: redis
         ports:
