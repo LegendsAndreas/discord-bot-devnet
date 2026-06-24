@@ -53,7 +53,7 @@ services:
             - REDIS_ARGS=--requirepass ${REDIS_PASSWORD} --appendonly yes
         restart: unless-stopped
         
-        user: "999:999"
+        user: "1001:1001"
         tmpfs:
           - /tmp
         cap_drop:
