@@ -37,10 +37,10 @@ services:
         depends_on:
             - redis
         healthcheck:
-          test: ["CMD", "curl", "-f", "http://localhost/health"]
-          interval: 30s
+          test: ["CMD-Shell", "curl", "-f", "http://localhost/health"]
+          interval: 5s
           timeout: 10s
-          retries: 3
+          retries: 5
 
     redis:
         image: redis:latest
