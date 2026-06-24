@@ -49,4 +49,6 @@ app.get("/search/:query", async (req, res) => {
 	res.status(200).send(search);
 });
 
+app.get("/health", (req, res) => res.status(200).send({ status: "ok" }));
+
 app.listen(port, () => console.log(`Example app listening on port ${port}`));

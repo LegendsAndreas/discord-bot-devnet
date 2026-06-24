@@ -21,9 +21,9 @@ services:
             - DISCORD_SECRET=${DISCORD_SECRET}
         ports:
             - "3001:3001"
-        #depends_on:
-        #    - express
-        ##     condition: service_healthy
+        depends_on:
+            express:
+              condition: service_healthy
 
     express:
         <<: *common-security
@@ -36,11 +36,11 @@ services:
             - "80"
         depends_on:
             - redis
-        # healthcheck:
-        #   test: ["CMD-SHELL", "ping -c 1 localhost:80 || exit 1"]
-        #   interval: 5s
-        #   timeout: 5s
-        #   retries: 5
+        healthcheck:
+          test: ["CMD", "curl", "-f", "http://localhost/health"]
+          interval: 30s
+          timeout: 10s
+          retries: 3
 
     redis:
         image: redis:latest
