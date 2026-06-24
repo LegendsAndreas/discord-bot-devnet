@@ -37,7 +37,7 @@ services:
         depends_on:
             - redis
         healthcheck:
-            test: ["CMD-SHELL", "curl", "-f", "https://juggalos.mercantec.tech/health"]
+            test: ["CMD-SHELL", "wget -qO- http://localhost/health >/dev/null || exit 1"]
             interval: 5s
             timeout: 10s
             retries: 5
