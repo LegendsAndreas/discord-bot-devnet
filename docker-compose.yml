@@ -23,7 +23,7 @@ services:
             - "3001:3001"
         depends_on:
             express:
-              condition: service_healthy
+                condition: service_healthy
 
     express:
         <<: *common-security
@@ -37,10 +37,10 @@ services:
         depends_on:
             - redis
         healthcheck:
-          test: ["CMD-Shell", "curl", "-f", "http://localhost/health"]
-          interval: 5s
-          timeout: 10s
-          retries: 5
+            test: ["CMD-SHELL", "curl", "-f", "http://localhost/health"]
+            interval: 5s
+            timeout: 10s
+            retries: 5
 
     redis:
         image: redis:latest
