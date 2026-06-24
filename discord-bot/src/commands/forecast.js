@@ -40,7 +40,7 @@ export default new Command({
 		const dailyText = data.daily
 			.sort((a, b) => a.time - b.time)
 			.slice(0, 10)
-			.map((d) => `${d.condition} ${d.date}\n🌡 ${d.minTemp}° / ${d.maxTemp}°${d.precipitation ? ` • 🌧 ${d.precipitation}mm` : ""}`)
+			.map((d) => `${d.condition} ${d.date}  •  🌡 ${d.minTemp}° / ${d.maxTemp}°${d.precipitation ? `  •  🌧 ${d.precipitation}mm` : ""}`)
 			.join("\n");
 
 		const embed = new EmbedBuilder()
