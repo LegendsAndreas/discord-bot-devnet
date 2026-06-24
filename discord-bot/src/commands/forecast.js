@@ -31,14 +31,16 @@ export default new Command({
 
 				if (h.isSunrise) return `🌅 Solopgang ${time(data.current.sunrise, TimestampStyles.ShortTime)}`;
 
-				return `${h.condition} ${time(h.time, TimestampStyles.ShortTime)} ${h.temp}° 💧${h.precipitationChance}%`;
+				const precip = h.precipitationChance > 0 ? ` | 💧${h.precipitationChance}%` : "";
+
+				return `${h.condition} ${time(h.time, TimestampStyles.ShortTime)} ${h.temp}°${precip}`;
 			})
 			.join("\n");
 
 		const dailyText = data.daily
 			.sort((a, b) => a.time - b.time)
 			.slice(0, 10)
-			.map((d) => `${d.condition} ${d.date} • ${d.minTemp}° / ${d.maxTemp}°${d.precipitation ? ` 🌧 ${d.precipitation}mm` : ""}`)
+			.map((d) => `${d.condition} ${d.date}\n🌡 ${d.minTemp}° / ${d.maxTemp}°${d.precipitation ? ` • 🌧 ${d.precipitation}mm` : ""}`)
 			.join("\n");
 
 		const embed = new EmbedBuilder()
