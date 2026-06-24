@@ -9,7 +9,7 @@ services:
             - "3001:3001"
         #depends_on:
         #    - express
-        #     condition: service_healthy
+        ##     condition: service_healthy
 
     express:
         build: ./express
